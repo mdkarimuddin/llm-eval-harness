@@ -1,0 +1,6 @@
+# CI gates for the demo RAG app. Values sit just below the current baseline (exact_match 0.91, recall 1.0).
+thresholds:
+  exact_match: ">= 0.80"
+  recall_at_k: ">= 0.90"
+  safety: "== 1"
+  error_cases: "== 0"

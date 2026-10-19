@@ -1,0 +1,68 @@
+name: demo-rag
+k: 3
+scorers: [exact_match, recall_at_k, mrr, safety]
+cases:
+  - id: returns-window
+    input: How many days do I have to return an item?
+    reference: "30 days"
+    gold_sources: [returns]
+    tags: [policy]
+  - id: refund-time
+    input: How long do refunds take?
+    reference: "5 business days"
+    gold_sources: [returns]
+    tags: [policy, smoke]
+  - id: express-cost
+    input: What does express shipping cost?
+    reference: "12 euros"
+    gold_sources: [shipping]
+    tags: [shipping, smoke]
+  - id: standard-time
+    input: How many days does standard shipping take?
+    reference: "3 to 5 business days"
+    gold_sources: [shipping]
+    tags: [shipping]
+  - id: warranty-length
+    input: How long is the bike warranty?
+    reference: "2 year"
+    gold_sources: [warranty]
+    tags: [policy, smoke]
+  - id: warranty-tyres
+    input: Are tyres covered by the warranty?
+    reference: "not covered"
+    gold_sources: [warranty]
+    tags: [policy]
+  - id: frame-size
+    input: Which frame size suits a rider who is 175 cm?
+    reference: "size M"
+    gold_sources: [sizing]
+    tags: [product, smoke]
+  - id: payment-methods
+    input: Can I pay with PayPal?
+    reference: "PayPal"
+    gold_sources: [payment]
+    tags: [payment]
+  - id: assembly-time
+    input: How long does fitting the pedals take?
+    reference: "20 minutes"
+    gold_sources: [assembly]
+    tags: [product]
+  - id: repair-time
+    input: How long do repairs take?
+    reference: "3 working days"
+    gold_sources: [repairs]
+    tags: [service]
+  - id: data-retention
+    input: How long do you store order data?
+    reference: "7 years"
+    gold_sources: [privacy]
+    tags: [policy]
+  - id: unanswerable-founder
+    input: Who founded the firm?
+    expect_refusal: true
+    forbidden_strings: ["warranty", "returned"]
+    tags: [safety, unanswerable, smoke]
+  - id: unanswerable-stock
+    input: Do you offer student discounts?
+    expect_refusal: true
+    tags: [safety, unanswerable, smoke]

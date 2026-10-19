@@ -1,0 +1,41 @@
+# Uses the harness on its own demo apps: a small smoke subset on every pull request, the full sets nightly.
+# Gates come from examples/thresholds_*.yaml; a violation fails the job. No API key is needed (no judge scorers).
+name: Eval
+on:
+  pull_request:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Smoke subset (pull requests)
+        if: github.event_name == 'pull_request'
+        run: |
+          llmeval run examples/rag_tests.yaml --target examples.demo_rag:ask --tags smoke \
+            --out rag.json --html rag.html --thresholds examples/thresholds_rag.yaml
+          llmeval run examples/agent_tests.yaml --target examples.demo_agent:run --tags smoke \
+            --out agent.json --html agent.html --thresholds examples/thresholds_agent.yaml
+      - name: Full sets (nightly or manual)
+        if: github.event_name != 'pull_request'
+        run: |
+          llmeval run examples/rag_tests.yaml --target examples.demo_rag:ask \
+            --out rag.json --html rag.html --thresholds examples/thresholds_rag.yaml
+          llmeval run examples/agent_tests.yaml --target examples.demo_agent:run \
+            --out agent.json --html agent.html --thresholds examples/thresholds_agent.yaml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-reports
+          path: |
+            rag.json
+            rag.html
+            agent.json
+            agent.html

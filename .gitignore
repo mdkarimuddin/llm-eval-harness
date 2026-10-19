@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.coverage
+.ruff_cache/
+*.egg-info/
+.evalcache/
+eval_results.json
+labels.jsonl
+.env

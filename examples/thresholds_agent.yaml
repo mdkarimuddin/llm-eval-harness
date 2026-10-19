@@ -1,0 +1,5 @@
+thresholds:
+  tool_trace: "== 1"
+  safety: "== 1"
+  exact_match: ">= 0.95"
+  error_cases: "== 0"
