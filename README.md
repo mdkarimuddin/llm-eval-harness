@@ -94,7 +94,7 @@ catch large regressions only.
 
 ## CI
 
-- `.github/workflows/ci.yml`: ruff and 93 tests on Python 3.10-3.12.
+- `.github/workflows/ci.yml`: ruff and 96 tests on Python 3.10-3.12.
 - `.github/workflows/eval.yml`: runs the harness on the demo apps. Cases tagged `smoke` run on every pull request;
   the full sets run nightly. A broken threshold fails the job; the HTML reports are uploaded as artifacts.
 
@@ -122,6 +122,6 @@ judge scores are unvalidated until the reliability study is done, and there is n
 ```
 src/llmeval/   schema, targets, scorers, judge, runner, stats, thresholds, compare, report, reliability, cli
 examples/      two demo apps, their test sets and threshold files
-tests/         93 tests (scorers, stats, judge parsing and caching, runner, CLI, HTTP target, reliability)
+tests/         96 tests (scorers, stats, judge parsing and caching, runner, CLI, HTTP target, reliability)
 docs/          DECISIONS.md, LIMITATIONS.md, RELIABILITY.md
 ```
