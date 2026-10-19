@@ -95,3 +95,48 @@ def test_anthropic_judge_rejects_missing_key(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     with pytest.raises(JudgeError):
         AnthropicJudge()
+
+
+class _Block:
+    type = "text"
+
+    def __init__(self, text):
+        self.text = text
+
+
+class _Usage:
+    input_tokens, output_tokens = 11, 7
+
+
+class _Resp:
+    def __init__(self, text):
+        self.content, self.usage = [_Block(text)], _Usage()
+
+
+def _client(with_temperature):
+    calls = []
+
+    class Messages:
+        if with_temperature:
+            def create(self, *, model, max_tokens, system, messages, temperature):
+                calls.append({"temperature": temperature, "model": model})
+                return _Resp('{"score": 4}')
+        else:
+            def create(self, *, model, max_tokens, system, messages):
+                calls.append({"model": model})
+                return _Resp('{"score": 4}')
+
+    class Client:
+        messages = Messages()
+
+    return Client(), calls
+
+
+def test_anthropic_judge_sends_temperature_only_when_the_sdk_accepts_it():
+    client, calls = _client(with_temperature=True)
+    reply = AnthropicJudge(model="m", client=client).complete("s", "u")
+    assert calls == [{"temperature": 0, "model": "m"}] and (reply.tokens_in, reply.tokens_out) == (11, 7)
+    client, calls = _client(with_temperature=False)
+    judge = AnthropicJudge(model="m", client=client)
+    assert judge.temperature_zero is False
+    assert judge.complete("s", "u").text == '{"score": 4}' and calls == [{"model": "m"}]

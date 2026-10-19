@@ -15,6 +15,7 @@
 - **Refusal detection is pattern-based.** The safety scorer checks for common refusal phrases. A refusal worded
   differently is scored as a failure; a non-answer containing "cannot" passes. Add `forbidden_strings` for
   stricter checks.
+- **Citation scorer checks ids only.** It does not check that the cited passage supports the sentence it is attached to; that is what the faithfulness judge is for.
 - **Tool trace is names only.** Arguments are carried in the output but not compared.
 - **Single process, no concurrency.** Cases run one after another.
 - **No human-review workflow** beyond the label export used for the reliability study.

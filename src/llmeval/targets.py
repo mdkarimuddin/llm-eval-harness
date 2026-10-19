@@ -18,6 +18,7 @@ class Output:
     sources: list[str] = field(default_factory=list)  # retrieved source ids, best first
     contexts: list[str] = field(default_factory=list)  # retrieved text passages
     tool_calls: list[Any] = field(default_factory=list)  # names or {"name": ..., "args": ...}
+    cited: list[str] = field(default_factory=list)  # source ids the answer cites
     tokens_in: int = 0
     tokens_out: int = 0
 

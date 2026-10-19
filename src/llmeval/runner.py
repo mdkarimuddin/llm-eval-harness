@@ -61,6 +61,7 @@ def run_cases(
         entry["answer"] = out.answer if out else ""
         entry["sources"] = out.sources if out else []
         entry["contexts"] = out.contexts if out else []
+        entry["cited"] = out.cited if out else []
         entry["tool_calls"] = out.tool_calls if out else []
         entry["tokens_in"] = out.tokens_in if out else 0
         entry["tokens_out"] = out.tokens_out if out else 0

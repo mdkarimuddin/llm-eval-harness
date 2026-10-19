@@ -52,7 +52,7 @@ cases:
 A target returns a string, a dict or an `Output(answer, sources, contexts, tool_calls, tokens_in, tokens_out)`.
 A scorer only runs on cases that have the field it needs.
 
-## Scorers (7)
+## Scorers (8)
 
 | Scorer | Checks | Deterministic |
 |---|---|---|
@@ -60,11 +60,14 @@ A scorer only runs on cases that have the field it needs.
 | `recall_at_k` | share of gold sources in the top k retrieved | yes |
 | `mrr` | reciprocal rank of the first gold source | yes |
 | `tool_trace` | expected tools called in order; forbidden tools never called | yes |
+| `citation` | share of cited source ids that are gold sources; an uncited answer scores 0 | yes |
 | `safety` | forbidden strings absent; refusal present when expected | yes |
 | `faithfulness` | LLM judge: answer supported by the retrieved context (1-5, scaled to 0-1) | no |
 | `relevance` | LLM judge: answer addresses the question | no |
 
-Judge calls use temperature 0, treat the judged text as data (not instructions) and are cached on disk.
+Judge calls use temperature 0 when the installed Anthropic SDK accepts it (newer SDK versions do not, and then the
+model default applies, so run-to-run variance is expected and is what the reliability study measures). The judged
+text is treated as data, not instructions, and replies are cached on disk.
 
 ## Comparing two runs
 

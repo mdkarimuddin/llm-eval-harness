@@ -148,3 +148,12 @@ def test_cli_export_labels(tmp_path):
     assert run_cli("export-labels", res, "-n", "5", "--out", labels) == 0
     rows = [json.loads(line) for line in labels.read_text().splitlines()]
     assert len(rows) == 5 and all(r["human_label"] is None for r in rows)
+
+
+def test_cli_scorers_override(tmp_path):
+    out = tmp_path / "r.json"
+    assert run_cli("run", "examples/rag_tests.yaml", "--target", "examples.demo_rag:ask", "--scorers", "mrr",
+                   "--out", out, "--cache-dir", tmp_path / "c") == 0
+    assert list(json.loads(out.read_text())["summary"]["metrics"]) == ["mrr"]
+    assert run_cli("run", "examples/rag_tests.yaml", "--target", "examples.demo_rag:ask", "--scorers", "vibes",
+                   "--out", out) == 2

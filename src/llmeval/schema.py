@@ -10,7 +10,9 @@ from typing import Any
 import yaml
 
 MATCH_MODES = ("contains", "exact", "regex")
-KNOWN_SCORERS = ("exact_match", "recall_at_k", "mrr", "tool_trace", "safety", "faithfulness", "relevance")
+KNOWN_SCORERS = (
+    "exact_match", "recall_at_k", "mrr", "tool_trace", "safety", "citation", "faithfulness", "relevance",
+)
 DEFAULT_SCORERS = ("exact_match", "recall_at_k", "mrr", "tool_trace", "safety")
 CASE_FIELDS = {
     "id", "input", "reference", "match", "gold_sources", "expected_tools",

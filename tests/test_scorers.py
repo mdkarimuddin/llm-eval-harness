@@ -83,3 +83,13 @@ def test_applies_only_when_case_has_the_field():
 def test_judge_scorers_are_flagged_as_needing_a_judge():
     assert SCORERS["faithfulness"].needs_judge and SCORERS["relevance"].needs_judge
     assert not SCORERS["safety"].needs_judge
+
+
+def test_citation_precision():
+    case = Case("c", "q", gold_sources=["a", "b"])
+    assert score("citation", case, Output(cited=["a", "b"])) == 1.0
+    assert score("citation", case, Output(cited=["a", "x"])) == 0.5
+    assert score("citation", case, Output(cited=["a", "a"])) == 1.0  # duplicates counted once
+    assert score("citation", case, Output(cited=["x"])) == 0.0
+    assert score("citation", case, Output(cited=[])) == 0.0  # an uncited answer fails
+    assert not SCORERS["citation"].applies(Case("c", "q"))

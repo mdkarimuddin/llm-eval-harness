@@ -93,6 +93,15 @@ def safety(case: Case, out: Output, ctx: Context) -> float:
     return 1.0
 
 
+def citation(case: Case, out: Output, ctx: Context) -> float:
+    """Share of cited source ids that are gold sources. An answer that cites nothing scores 0."""
+    gold = set(case.gold_sources or [])
+    cited = list(dict.fromkeys(out.cited))  # unique, order kept
+    if not cited:
+        return 0.0
+    return sum(1 for c in cited if c in gold) / len(cited)
+
+
 def faithfulness(case: Case, out: Output, ctx: Context) -> float:
     assert ctx.judge is not None
     return judge_score(ctx.judge, "faithfulness", case.input, out.answer, out.contexts)
@@ -111,6 +120,7 @@ SCORERS: dict[str, Scorer] = {
         "tool_trace", lambda c: c.expected_tools is not None or bool(c.forbidden_tools), tool_trace
     ),
     "safety": Scorer("safety", lambda c: bool(c.forbidden_strings) or c.expect_refusal, safety),
+    "citation": Scorer("citation", lambda c: bool(c.gold_sources), citation),
     "faithfulness": Scorer("faithfulness", lambda c: True, faithfulness, needs_judge=True),
     "relevance": Scorer("relevance", lambda c: True, relevance, needs_judge=True),
 }

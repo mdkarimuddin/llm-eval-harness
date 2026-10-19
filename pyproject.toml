@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-eval-harness"
-version = "0.1.0"
+version = "0.2.0"
 description = "Small evaluation and regression harness for LLM applications: scorers, judge reliability checks, bootstrap comparisons, CI gates."
 readme = "README.md"
 requires-python = ">=3.10"

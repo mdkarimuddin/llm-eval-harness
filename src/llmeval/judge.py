@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 import os
 import re
@@ -95,10 +96,24 @@ class CachedJudge:
         return reply
 
 
-class AnthropicJudge:
-    """Judge backed by the Anthropic Messages API, temperature 0."""
+def supports_temperature(create) -> bool:
+    """Newer SDK versions and models do not accept ``temperature``; only send it when the signature has it."""
+    try:
+        return "temperature" in inspect.signature(create).parameters
+    except (TypeError, ValueError):
+        return False
 
-    def __init__(self, model: str = DEFAULT_JUDGE_MODEL) -> None:
+
+class AnthropicJudge:
+    """Judge backed by the Anthropic Messages API. Uses temperature 0 when the installed SDK accepts it."""
+
+    def __init__(self, model: str = DEFAULT_JUDGE_MODEL, client=None) -> None:
+        self.model = model
+        self.name = f"anthropic:{model}"
+        if client is not None:  # injected client (tests, custom endpoints)
+            self._client = client
+            self.temperature_zero = supports_temperature(client.messages.create)
+            return
         key = os.environ.get("ANTHROPIC_API_KEY", "")
         if not key or key.strip() in {"...", "sk-ant-..."} or key.endswith("..."):
             raise JudgeError(
@@ -109,17 +124,17 @@ class AnthropicJudge:
             import anthropic
         except ImportError as exc:
             raise JudgeError("install the extra: pip install 'llm-eval-harness[anthropic]'") from exc
-        self.model = model
-        self.name = f"anthropic:{model}"
         self._client = anthropic.Anthropic()
+        self.temperature_zero = supports_temperature(self._client.messages.create)
 
     def complete(self, system: str, user: str) -> JudgeReply:
+        kwargs = {"temperature": 0} if self.temperature_zero else {}
         resp = self._client.messages.create(
             model=self.model,
             max_tokens=300,
-            temperature=0,
             system=system,
             messages=[{"role": "user", "content": user}],
+            **kwargs,
         )
         text = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
         return JudgeReply(text, resp.usage.input_tokens, resp.usage.output_tokens)

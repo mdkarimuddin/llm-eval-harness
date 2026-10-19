@@ -21,7 +21,7 @@ from llmeval.reliability import (
 )
 from llmeval.report import html_report, text_summary
 from llmeval.runner import RunError, run_cases, select_cases
-from llmeval.schema import TestSetError, load_caseset
+from llmeval.schema import KNOWN_SCORERS, TestSetError, load_caseset
 from llmeval.targets import CachedTarget, HttpTarget, TargetError, load_callable
 from llmeval.thresholds import ThresholdError, check, load_thresholds
 
@@ -42,6 +42,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--tags", nargs="*", help="only run cases with any of these tags")
     run.add_argument("--subset", type=int, help="run a seeded random subset of N cases (for PR checks)")
     run.add_argument("--seed", type=int, default=0)
+    run.add_argument("--scorers", nargs="*", help="override the scorers listed in the test set")
     run.add_argument("--judge", choices=["none", "anthropic"], default="none")
     run.add_argument("--judge-model", default=None)
     run.add_argument("--cache-dir", default=".evalcache")
@@ -73,6 +74,11 @@ def _build_parser() -> argparse.ArgumentParser:
 def _cmd_run(args: argparse.Namespace) -> int:
     sys.path.insert(0, str(Path.cwd()))
     caseset = load_caseset(args.testset)
+    if args.scorers:
+        unknown = [s for s in args.scorers if s not in KNOWN_SCORERS]
+        if unknown:
+            raise TestSetError(f"unknown scorers {unknown}; known: {list(KNOWN_SCORERS)}")
+        caseset.scorers = list(args.scorers)
     cases = select_cases(caseset, args.tags, args.subset, args.seed)
     cache = Cache(args.cache_dir)
     if args.url:
